@@ -207,7 +207,11 @@ EndoMV.m.sum= summary.manyglm(EndoMV.m, nBoot=100, test="LR",p.uni="adjusted",
                               resamp="montecarlo")
 
 ##############################
-##### Tissue specifity test
+##### Tissue specifity test (Fisher exact test)
 ##############################
+
+
+
+
 
 
