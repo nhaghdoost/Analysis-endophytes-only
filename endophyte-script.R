@@ -42,19 +42,8 @@ boxplot(EndoMetaData$IR~EndoMetaData$TEMPRATURE)
 #########################
 ###### 1- Isolation rate
 #########################
-# zero-inflated model for success
-# 
-#   ZerSuc.m1= zeroinfl(EndoMetaData$SUCCESS ~ Substrate, data = EndoMetaData, dist = "poisson")
-# AIC(ZerSuc.m1)
-# 
-# anova(ZerSuc.m2)
-# 
-# ZerSuc.m2= zeroinfl(EndoMetaData$SUCCESS ~ Time + Locality + Temperature + Substrate, data = EndoMetaData, dist = "negbin")
-# AIC(ZerSuc.m2)
 
-## not working ## I don't enderstand this
-
-### GLM modles selection for IR
+### GLM model for IR
 
 Ir.m= glm(IR ~ Tissue*Time + Tissue*Locality+ Tissue*Temperature,
            data = EndoMetaData)
@@ -173,7 +162,7 @@ plot(gam1, residuals=T, shade=T, rug=F, cex=2.6,
      xlab="OTU Observation", ylab="log Mean Abundance") # , xaxp=c(0,150,15)
 
 ## keep core OTUs
-OTUobserv = TotalPresent > 10
+OTUobserv = TotalPresent > 5
 EndoCorAbun = EndoAbun[,OTUobserv]
 
 ### name of the Core OTUs
@@ -192,8 +181,7 @@ LocalityC<- factor(ECorMetaZero$LOCALITY,levels = c("BISOTON","HASAN ABAD","KHOS
 TimeC<- factor(ECorMetaZero$TIME, levels = c("1", "2","3"))
 TemperatureC<- factor(ECorMetaZero$TEMPRATURE, levels = c("25 Degree","4 Degree"))
 
-### Multispecies Model 
-
+### Multispecies Model for Core OTUs
 ECrMvabund= mvabund(ECorAbunZero)
 plot(ECrMvabund)
 
@@ -205,10 +193,99 @@ EndoMV.m.anova= anova.manyglm(EndoMV.m,nBoot=100, test="LR", p.uni="adjusted",
                               resamp="montecarlo")
 EndoMV.m.sum= summary.manyglm(EndoMV.m, nBoot=100, test="LR",p.uni="adjusted", 
                               resamp="montecarlo")
+## Which OTUs are significaantly affected
+EnAnova <- as.data.frame(EndoMV.m.anova$uni.p)
+otuTissueEf<-colnames(EnAnova)[EnAnova["TissueC",]<= 0.05]
+otuLocEf<- colnames(EnAnova)[EnAnova["LocalityC",]<= 0.05]
+otuTimEf<- colnames(EnAnova)[EnAnova["TimeC",]<= 0.05]
+otuTempEf<- colnames(EnAnova)[EnAnova["TemperatureC",]<= 0.05]
+### try to visualize these effects
 
-##############################
-##### Tissue specifity test (Fisher exact test)
-##############################
+## Tissue effects
+OTUtissu<- c("Byssochlamys.spectabilis.","Gnomoniaceae.sp..66","Microsphaeriopsis.olivacea",
+              "Penicillium.sp..A21","Preussia.sp..A31")
+TissuABUN<- ECorAbunZero[OTUtissu]##Keeping only tissue affected OTUs
+# get the mean valuse for each OTU in each tisse
+Tissuemean <- aggregate(. ~ ECorMetaZero$SUBSTRATE, TissuABUN, mean)
+#CReat a data frame of the mean valuse
+TissuMeanfram<- as.data.frame(Tissuemean,optional=TRUE)
+attr(TissuMeanfram, "row.names")<- c("Branch", "Leaf")
+
+### creat a matrix of mean observation of OTUs affected by tissue for ploting
+Tissudata<- data.matrix (TissuMeanfram[2:6],rownames.force = NA )
+
+pdf(file = "Effect of Tissue on OTU observation.pdf", paper = "a4", width = 7, height = 4)
+barplot(Tissudata, legend.text =TRUE, beside = TRUE,ylab= "mean observation per sample",
+        names.arg= c("B. spectabilis", "Gnomoniaceae sp.", "M. olivacea","Penicillium sp.",
+                     "Preussia sp."), axes= TRUE,ylim= c(0,1),  cex.names = 0.8,
+              args.legend = list(x = "topright",bty= "n"), border = "Black" )
+dev.off()
+
+### Temprature effects                                                                                       
+OTUtemp<- c ("Alternaria.sp..A25","Alternaria.sp..A9","Aspergillus.sp..A20",
+            "Aureobasidium.sp..A17","Byssochlamys.spectabilis.","Microsphaeriopsis.olivacea",
+            "Preussia.sp..A31")
+TempABUN<- ECorAbunZero[OTUtemp]##Keeping only Temp affected OTUs
+# get the mean valuse for each OTU in each temp
+Tempmean <- aggregate(. ~ ECorMetaZero$TEMPRATURE, TempABUN, mean)
+#CReat a data frame of the mean valuse
+TempMeanfram<- as.data.frame(Tempmean,optional=TRUE)
+attr(TempMeanfram, "row.names")<- c("25 Degree", "4 Degree")
+
+### creat a matrix of mean observation of OTUs affected by temp for ploting
+Tempdata<- data.matrix (TempMeanfram[2:8],rownames.force = NA )
+pdf(file = "Effect of Temprature on OTU observation.pdf", paper = "a4", width = 7, height = 4)
+barplot(Tempdata,legend.text =TRUE, beside = TRUE,ylab= "mean observation per sample" ,
+        names.arg= c ("A25","A9","A20",
+                      "A17","B.spec","M.oliv",
+                      "A31"), axes= TRUE,ylim= c(0,1.6), cex.names = 0.8,
+        args.legend = list(x = "topleft",bty= "n"), border = "Black", 
+        width = 0.5)
+dev.off()
+
+## Locality effects
+plot(ECorAbunZero$Byssochlamys.spectabilis.~ ECorMetaZero$LOCALITY)
+
+# time effects 
+plot(ECorAbunZero$Alternaria.sp..A25~ ECorMetaZero$TIME)
+
+
+
+
+
+
+
+############################
+#### 5- community analysis at family level
+############################
+## Reporting which factors are affecting the communities at family level
+# Data input
+### many OTUs were identified at famiy level so I chose this level to do this analysis
+### the OTU abundances for each family was merged together
+### out of 59 OTUs we were not able to identify 15 OTU and were grouped according to
+#the assignment level
+
+FmilyAbun= read.csv (file="matrix_family.csv", 
+                    header = T, row.names = 1)
+
+FamilyMVABUND= mvabund(FmilyAbun)
+plot(FamilyMVABUND)
+
+FamilyMV.m= manyglm(FamilyMVABUND ~ Locality+ Time+ Temperature+ Tissue, data = EndoMetaData,
+                    family = "negative.binomial", show.residuals=T)
+FamilyMV.Anova= anova.manyglm(FamilyMV.m,nBoot=100, test="LR", p.uni="adjusted", 
+                              resamp="montecarlo" )
+FamilyMV.summ= summary.manyglm(FamilyMV.m,nBoot=100, test="LR", p.uni="adjusted", 
+                              resamp="montecarlo")
+### which families are significantly affected?
+
+FamilyAnova <- as.data.frame(FamilyMV.Anova$uni.p)
+FmilyTissue<-colnames(FamilyAnova)[FamilyAnova["Tissue",]<= 0.05]
+FmilyLoc<-colnames(FamilyAnova)[FamilyAnova["Locality",]<= 0.05]
+FmilyTim<-colnames(FamilyAnova)[FamilyAnova["Time",]<= 0.05]
+FmilyTemp<-colnames(FamilyAnova)[FamilyAnova["Temperature",]<= 0.05]
+
+
 
 
 
