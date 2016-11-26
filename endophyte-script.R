@@ -249,14 +249,155 @@ plot(ECorAbunZero$Byssochlamys.spectabilis.~ ECorMetaZero$LOCALITY)
 # time effects 
 plot(ECorAbunZero$Alternaria.sp..A25~ ECorMetaZero$TIME)
 
+################################
+#### 5- NMDS and similarities
+################################
+ENdoNMDS<-metaMDS(ECorAbunZero, distance = "bray", k= 2, trymax = 20)
+## Plot NMDS for localities
+dev.off()
+plot(ENdoNMDS$points, xlab="dimension 1", ylab="dimension 2")
+ordiplot(ENdoNMDS, type = "n", display = "sites",xlab="Dimension 1", ylab="Dimension 2"
+         )
+points(ENdoNMDS$points, pch=20, col= "black", cex=0.5)
 
+with(ECorMetaZero,ordiellipse(ENdoNMDS,ECorMetaZero$LOCALITY,cex=.5, 
+                       draw="polygon", col="blue",
+                       alpha=100,kind="se",conf=0.95, 
+                       show.groups=(c("HASAN ABAD"))))
+with(ECorMetaZero,ordiellipse(ENdoNMDS, ECorMetaZero$LOCALITY,cex=.5, 
+                 draw="polygon", col=c("black"),
+                   alpha=100,kind="se",conf=0.95, 
+                   show.groups=(c("KHOSRO ABAD"))))
+with(ECorMetaZero,ordiellipse(ENdoNMDS,ECorMetaZero$LOCALITY,cex=.5, 
+                draw="polygon", col=c("green"),
+                  alpha=100,kind="se",conf=0.95, 
+                show.groups=(c("KEREND"))))
+with(ECorMetaZero,ordiellipse(ENdoNMDS, ECorMetaZero$LOCALITY,cex=.5, 
+            draw="polygon", col=c("yellow"),
+                      alpha=100,kind="se",conf=0.95, 
+                   show.groups=(c("SORKHE DIZE"))))
+with(ECorMetaZero,ordiellipse(ENdoNMDS, ECorMetaZero$LOCALITY,cex=1.5,
+                              draw="polygon", col= "darkred",
+                              alpha=100, kind="se", conf=0.95, 
+                              show.groups=(c("BISOTON"))))#red
+mylegend = legend("topright", c("BISOTON","HASAN ABAD","KHOSRO ABAD",
+                                 "KEREND","SORKHE DIZE"), cex=0.8,
+                  fill=c("red","blue","black","green","yellow"), border="white", bty="n")
 
+## I can't see the differences in this plot
+## try 3D NMDS
+NMDS.3<-metaMDS(ECorAbunZero, distance = "bray", k= 3, trymax = 20)
 
+### Plot nmds1 &2
+dev.off()
+#pdf(file = "3D NMDS for localities.pdf", paper = "a4", width = 7, height = 4)
+par(mfrow= c(1,3))
+NMDS1.2=ordiplot(NMDS.3,choices=c(1,2), type = "n", display = "sites",xlab="Dimension 1", ylab="Dimension 2"
+         ,ylim = c(-2,2), xlim = c(-3,3))
+points(NMDS.3$points[,1],NMDS.3$points[,2], pch=20, col= "black", cex= 0.3)
+with(ECorMetaZero,ordiellipse(NMDS1.2,ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col="blue",
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("HASAN ABAD"))))
+with(ECorMetaZero,ordiellipse(NMDS1.2, ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col=c("black"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("KHOSRO ABAD"))))
+with(ECorMetaZero,ordiellipse(NMDS1.2,ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col=c("green"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("KEREND"))))
+with(ECorMetaZero,ordiellipse(NMDS1.2, ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col=c("yellow"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("SORKHE DIZE"))))
+with(ECorMetaZero,ordiellipse(NMDS1.2, ECorMetaZero$LOCALITY,cex=1.5,
+                              draw="polygon", col= "darkred",
+                              alpha=100, kind="se", conf=0.95, 
+                              show.groups=(c("BISOTON"))))#red
+## plot nmds2&3
+NMDS2.3=ordiplot(NMDS.3,choices=c(2,3), type = "n", display = "sites",xlab="Dimension 2", 
+                 ylab="Dimension 3"
+                 ,ylim = c(-1.5,1.5), xlim = c(-2,2))
+points(NMDS.3$points[,2],NMDS.3$points[,3], pch=20, col= "gray", cex=0.3)
+with(ECorMetaZero,ordiellipse(NMDS2.3,ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col="blue",
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("HASAN ABAD"))))
+with(ECorMetaZero,ordiellipse(NMDS2.3, ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col=c("black"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("KHOSRO ABAD"))))
+with(ECorMetaZero,ordiellipse(NMDS2.3,ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col=c("green"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("KEREND"))))
+with(ECorMetaZero,ordiellipse(NMDS2.3, ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col=c("yellow"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("SORKHE DIZE"))))
+with(ECorMetaZero,ordiellipse(NMDS2.3, ECorMetaZero$LOCALITY,cex=1.5,
+                              draw="polygon", col= "darkred",
+                              alpha=100, kind="se", conf=0.95, 
+                              show.groups=(c("BISOTON"))))#red
+### plot nmds 1&3
+NMDS1.3=ordiplot(NMDS.3,choices=c(1,3), type = "n", display = "sites",xlab="Dimension 1", 
+                 ylab="Dimension 3"
+                 ,ylim = c(-1.5,1.5), xlim = c(-2,2))
+points(NMDS.3$points[,1],NMDS.3$points[,3], pch=20, col= "gray",cex=0.3)
+with(ECorMetaZero,ordiellipse(NMDS1.3,ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col="blue",
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("HASAN ABAD"))))
+with(ECorMetaZero,ordiellipse(NMDS1.3, ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col=c("black"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("KHOSRO ABAD"))))
+with(ECorMetaZero,ordiellipse(NMDS1.3,ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col=c("green"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("KEREND"))))
+with(ECorMetaZero,ordiellipse(NMDS1.3, ECorMetaZero$LOCALITY,cex=.5, 
+                              draw="polygon", col=c("yellow"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("SORKHE DIZE"))))
+with(ECorMetaZero,ordiellipse(NMDS1.3, ECorMetaZero$LOCALITY,cex=1.5,
+                              draw="polygon", col= "darkred",
+                              alpha=100, kind="se", conf=0.95, 
+                              show.groups=(c("BISOTON"))))#red
+mylegend = legend("topright", c("BISOTON","HASAN ABAD","KHOSRO ABAD",
+                                "KEREND","SORKHE DIZE"), cex=0.5,
+                  fill=c("red","blue","black","green","yellow"), 
+                  border="white", bty="n")
+dev.off()
+####### NMDS for time of sampling
 
+dev.off()
+plot(ENdoNMDS$points, xlab="dimension 1", ylab="dimension 2")
+ordiplot(ENdoNMDS, type = "n", display = "sites",xlab="Dimension 1", ylab="Dimension 2", 
+         ylim = c(-2,2), xlim = c(-3,3))
+points(ENdoNMDS$points, pch=20, col= as.numeric(ECorMetaZero$TIME))
+#ordispider(ENdoNMDS,ECorMetaZero$TIME, col=c("grey"))
+
+with(ECorMetaZero,ordiellipse(ENdoNMDS,ECorMetaZero$TIME,cex=.5, 
+                              draw="polygon", col="black",
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("1"))))
+with(ECorMetaZero,ordiellipse(ENdoNMDS, ECorMetaZero$TIME,cex=.5, 
+                              draw="polygon", col=c("red"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("2"))))
+with(ECorMetaZero,ordiellipse(ENdoNMDS,ECorMetaZero$TIME,cex=.5, 
+                              draw="polygon", col=c("green"),
+                              alpha=100,kind="se",conf=0.95, 
+                              show.groups=(c("3"))))
+legend("topright", c("May 2015","Jun 2015","July 2015"), 
+                  fill=c("black","red","green"), 
+                  border="white", bty="n")
 
 
 ############################
-#### 5- community analysis at family level
+#### 6- community analysis at family level
 ############################
 ## Reporting which factors are affecting the communities at family level
 # Data input
