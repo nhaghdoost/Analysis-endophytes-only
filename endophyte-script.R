@@ -408,6 +408,7 @@ legend("topright", c("May 2015","Jun 2015","July 2015"),
 
 FmilyAbun= read.csv (file="matrix_family.csv", 
                     header = T, row.names = 1)
+row.names(FmilyAbun)==row.names(EndoMetaData)
 
 FamilyMVABUND= mvabund(FmilyAbun)
 plot(FamilyMVABUND)
@@ -427,8 +428,34 @@ FmilyTim<-colnames(FamilyAnova)[FamilyAnova["Time",]<= 0.05]
 FmilyTemp<-colnames(FamilyAnova)[FamilyAnova["Temperature",]<= 0.05]
 
 
+# get the sum for each family in each tisse
+family.sum <- aggregate(. ~ EndoMetaData$SUBSTRATE,FmilyAbun , sum)
 
-
+# pie chart for paper
+dev.off()
+pdf(file = "PIE CHART L&B final.pdf", paper = "a4", width = 7, height = 3)
+par(mfrow=c(1,2),mar=c(1,4,1,4))
+# creat a Pie chart for leaf
+L.slic<- c(1,1,2,25,1,2,1,9,6,7,2,3)#get the valus from family.sum and remove the zeros
+L.lbls<- c("Coniochaetaceae","Davidiellaceae","Dothioraceae","Gnomoniaceae",
+           "Lasiosphaeriaceae","Leptosphaeriaceae","Nectriaceae","Pleosporaceae",
+           "Sporormiaceae","Trichocomaceae","Xylariaceae","Unidentified fungi")
+L.Percent<-round(L.slic/sum(L.slic)*100, digits=2)
+L.lbls <- paste(L.lbls, L.Percent)
+L.lbls<-paste(L.lbls,"%",sep="")
+pie(L.slic,labels =L.lbls, col = rainbow(length(L.lbls)),
+    cex=0.5, main = "Leaf",border = NA,cex.main= 0.8)
+# creat a Pie chart for branch
+B.slic<- c(6,45,157,6,36,48,85,15,61)#get the valus from family.sum and remove the zeros
+B.lbls<- c("Coniochaetaceae","Dothioraceae","Leptosphaeriaceae",
+           "Davidiellaceae","Pleosporaceae","Sporormiaceae","Trichocomaceae","Valsaceae",
+           "Other families")
+B.Percent<-round(B.slic/sum(B.slic)*100, digits=2)
+B.lbls <- paste(B.lbls, B.Percent)
+B.lbls<-paste(B.lbls,"%",sep="")
+pie(B.slic,labels =B.lbls, col = rainbow(length(B.lbls)),
+    cex=0.5, main = "Branch",border = NA, cex.main= 0.8)
+dev.off()
 
 
 
